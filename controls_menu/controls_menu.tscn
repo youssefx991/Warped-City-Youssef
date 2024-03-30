@@ -1,0 +1,63 @@
+[gd_scene load_steps=2 format=3 uid="uid://cjtqswjtwoars"]
+
+[sub_resource type="GDScript" id="GDScript_ba07y"]
+script/source = "extends Control
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+	pass
+
+
+func _on_back_button_pressed():
+	get_tree().change_scene_to_file(\"res://Main_Menu/main_menu.tscn\")
+"
+
+[node name="controls_menu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_ba07y")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -103.5
+offset_top = -69.5
+offset_right = 103.5
+offset_bottom = 69.5
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(1.5, 1.5)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="movement_label" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Movement        -   Arrow Keys
+Jump                  -   Space Bar
+Duck                  -   Arrow Down
+Shoot                 -   X
+Ladder up         -  Arrow Up
+Ladder down    -  Arrow Down"
+
+[node name="back_button" type="Button" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Back to Main"
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/back_button" to="." method="_on_back_button_pressed"]

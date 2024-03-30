@@ -1,0 +1,41 @@
+[gd_scene load_steps=2 format=3 uid="uid://btm8wrgakoqob"]
+
+[ext_resource type="Script" path="res://how_to_play_menu/how_to_play_menu.gd" id="1_fikdj"]
+
+[node name="how_to_play_menu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_fikdj")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -250.0
+offset_top = -37.5
+offset_right = 250.0
+offset_bottom = 37.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="how_to_play_label" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Avoid being shot or collided by the Egg Enemy in order to survive
+Avoid falling down to stay alive
+You can shoot the Egg Enemy by your pistol to kill it"
+
+[node name="back_button" type="Button" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Back to Main"
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/back_button" to="." method="_on_back_button_pressed"]

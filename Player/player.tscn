@@ -1,0 +1,324 @@
+[gd_scene load_steps=32 format=3 uid="uid://ccms6dcxqu0q8"]
+
+[ext_resource type="Texture2D" uid="uid://cnfscfet327bn" path="res://assets2/Sprites/Player/Duck/Duck1.png" id="1_op7gk"]
+[ext_resource type="Texture2D" uid="uid://cwmo1yr3c4dki" path="res://assets2/Sprites/Player/Duck/Duck2.png" id="2_tuds4"]
+[ext_resource type="Texture2D" uid="uid://vi7vqi6pfaf8" path="res://assets2/Sprites/Player/Duck/Duck3.png" id="3_iseyp"]
+[ext_resource type="Texture2D" uid="uid://bnd74quxrq7o1" path="res://assets2/Sprites/Player/Duck/Duck4.png" id="4_6dtcl"]
+[ext_resource type="Texture2D" uid="uid://b5fr6dx0j1yeh" path="res://assets2/Sprites/Player/Hurt/Hurt2.png" id="5_5bqk2"]
+[ext_resource type="Texture2D" uid="uid://28sqgbho5k66" path="res://assets2/Sprites/Player/Idle/Idle1.png" id="5_qocxv"]
+[ext_resource type="Texture2D" uid="uid://cqhr31j78j0v3" path="res://assets2/Sprites/Player/Idle/Idle2.png" id="6_wrq7x"]
+[ext_resource type="Texture2D" uid="uid://d0tfgqex0mmal" path="res://assets2/Sprites/Player/Idle/Idle3.png" id="7_11f3k"]
+[ext_resource type="Texture2D" uid="uid://bhcly7ghr03bc" path="res://assets2/Sprites/Player/Idle/Idle4.png" id="8_7u367"]
+[ext_resource type="Texture2D" uid="uid://c7g2rukj6gvmh" path="res://assets2/Sprites/Player/Jump/Jump1.png" id="9_ailyr"]
+[ext_resource type="Texture2D" uid="uid://cksknwr41cjuy" path="res://assets2/Sprites/Player/Jump/Jump2.png" id="10_avaks"]
+[ext_resource type="Texture2D" uid="uid://cicu5baup3y6t" path="res://assets2/Sprites/Player/Jump/Jump3.png" id="11_oft8c"]
+[ext_resource type="Texture2D" uid="uid://imip2mcb1x3u" path="res://assets2/Sprites/Player/Jump/Jump4.png" id="12_culb3"]
+[ext_resource type="Texture2D" uid="uid://bk30wjnpec3lr" path="res://assets2/Sprites/Player/Jump/Jump5.png" id="13_2bk6t"]
+[ext_resource type="Texture2D" uid="uid://b4ukc6p5gu8kq" path="res://assets2/Sprites/Player/Jump/Jump6.png" id="14_7yk16"]
+[ext_resource type="Texture2D" uid="uid://dhuwi7lg5i36o" path="res://assets2/Sprites/Player/Jump/Jump7.png" id="15_5pcdy"]
+[ext_resource type="Texture2D" uid="uid://hyfn0ciu6w0d" path="res://assets2/Sprites/Player/Run/Run1.png" id="16_krr5a"]
+[ext_resource type="Texture2D" uid="uid://pa2s4vmjfpvs" path="res://assets2/Sprites/Player/Run/Run2.png" id="17_x72x4"]
+[ext_resource type="Texture2D" uid="uid://dgs5yp53xkuj" path="res://assets2/Sprites/Player/Run/Run3.png" id="18_7vflr"]
+[ext_resource type="Texture2D" uid="uid://dxan3qglp5tnu" path="res://assets2/Sprites/Player/Run/Run4.png" id="19_c6ycj"]
+[ext_resource type="Texture2D" uid="uid://llwwj4h5nigj" path="res://assets2/Sprites/Player/Run/Run5.png" id="20_fa4rj"]
+[ext_resource type="Texture2D" uid="uid://cd68lh4vv8vot" path="res://assets2/Sprites/Player/Run/Run6.png" id="21_8bw68"]
+[ext_resource type="Texture2D" uid="uid://bkbjs5aotblth" path="res://assets2/Sprites/Player/Run/Run7.png" id="22_q1fr3"]
+[ext_resource type="Texture2D" uid="uid://01rmybuny0kg" path="res://assets2/Sprites/Player/Run/Run8.png" id="23_2kkxy"]
+[ext_resource type="Texture2D" uid="uid://cx8k3sseq1uy0" path="res://assets2/Sprites/Player/Shoot/Shoot1.png" id="25_cjdpa"]
+[ext_resource type="Texture2D" uid="uid://bf0ortqhu4p6d" path="res://assets2/Sprites/Player/Shoot/Shoot2.png" id="26_2ysag"]
+[ext_resource type="Texture2D" uid="uid://6qp683rtfn7s" path="res://assets2/Sprites/Player/Shoot/Shoot3.png" id="27_3n0rt"]
+[ext_resource type="AudioStream" uid="uid://cxi3eff6j35tt" path="res://9mm-pistol-shot-6349.mp3" id="28_he2l4"]
+
+[sub_resource type="GDScript" id="GDScript_d2ifj"]
+script/source = "extends CharacterBody2D
+
+var bullet_direction = 1
+const JUMP_VELOCITY = -400.0
+const SPEED = 300.0
+# Get the gravity from the project settings to be synced with RigidBody nodes.
+var gravity = ProjectSettings.get_setting(\"physics/2d/default_gravity\")
+
+@onready var animated_sprite = $AnimatedSprite2D
+@onready var bullet = preload(\"res://Bullet/bullet.tscn\")
+@onready var gunshot = $gunshot
+
+var is_ducking = false
+var is_shooting = false
+var health = 100
+var is_dead = false
+var is_climbing = false
+var lifes = 3
+func _ready():
+	animated_sprite.play('Idle')
+	
+func _physics_process(delta):
+	$health_label.text = \"HP: \" + str(health) 
+	$lifes_label.text = \"Lifes: \" + str(lifes)
+	# Add the gravity.
+	
+	if Input.is_action_just_pressed('ui_up') and is_climbing:
+		velocity.y -= 15
+		print(\"UPUP\")
+	elif Input.is_action_just_pressed('ui_down') and is_climbing:
+		velocity.y += 15
+		
+
+	# Get the input direction and handle the movement/deceleration.
+	var direction = Input.get_axis(\"ui_left\", \"ui_right\")
+	
+	
+	if not is_on_floor() and not is_climbing:
+		velocity.y += gravity * delta
+		
+		
+
+	if Input.is_action_pressed('ui_down') and is_on_floor():
+		is_ducking = true
+		animated_sprite.play('Duck')
+	if Input.is_action_just_released('ui_down'):
+		is_ducking = false
+		animated_sprite.play('Idle')
+		
+	#handle shooting
+	if Input.is_action_just_pressed('shoot'):
+		is_shooting = true
+		animated_sprite.play(\"Shoot\")
+		gunshot.play()		
+		var current_bullet = bullet.instantiate()
+		current_bullet.direction = bullet_direction
+		current_bullet.global_position = $Marker2D.global_position
+		get_parent().add_child(current_bullet)
+		
+	if Input.is_action_just_released('shoot'):
+		is_shooting = false
+		
+	# Handle Jump.
+	if Input.is_action_just_pressed(\"ui_accept\") and is_on_floor():
+		velocity.y = JUMP_VELOCITY
+		animated_sprite.play(\"Jump\")
+	
+	
+		
+	
+	
+	# sprite flip
+	if direction == -1:
+		bullet_direction = -1
+		animated_sprite.flip_h = true
+		$Marker2D.position.x = -32
+	elif direction == 1:
+		bullet_direction = 1
+		animated_sprite.flip_h = false
+		$Marker2D.position.x = 32
+		
+	#
+	if direction:
+		if velocity.y == 0 and not is_ducking and not is_shooting:
+			animated_sprite.play(\"Run\")
+		elif velocity.y > 0 and not is_ducking and not is_shooting:
+			animated_sprite.play(\"Jump\")
+		velocity.x = direction * SPEED
+	else:
+		if velocity.y == 0 and not is_ducking and not is_shooting:
+			animated_sprite.play(\"Idle\")
+		elif velocity.y > 0 and not is_ducking and not is_shooting:
+			animated_sprite.play(\"Jump\")
+		velocity.x = move_toward(velocity.x, 0, SPEED)
+	move_and_slide()
+	#
+	#if position.y >= 650:
+		#$Camera2D.enabled = false
+		#
+	if health <= 0 or global_position.y > 1000:
+		lifes = lifes - 1
+		if lifes <= 0:
+			is_dead = true
+		else:
+			global_position = Vector2(413, 609.9764)
+			$Camera2D.global_position = Vector2(413, 609.9764)
+			$Camera2D.enabled = true
+			health = 100
+			
+
+	print(\"lifes: \" , lifes)
+	print($Camera2D.global_position)
+	print(position)
+	
+func _on_area_2d_body_entered(body):
+	if body.name == \"Bullet\":
+		body.queue_free()
+		health -= 10
+	
+		
+"
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_vrvv3"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_op7gk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_tuds4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_iseyp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_6dtcl")
+}],
+"loop": true,
+"name": &"Duck",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("13_2bk6t")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_7yk16")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_5pcdy")
+}],
+"loop": true,
+"name": &"Fall",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_5bqk2")
+}],
+"loop": true,
+"name": &"Hurt",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_qocxv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_wrq7x")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_11f3k")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_7u367")
+}],
+"loop": true,
+"name": &"Idle",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("9_ailyr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_avaks")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_oft8c")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_culb3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_2bk6t")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_7yk16")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_5pcdy")
+}],
+"loop": true,
+"name": &"Jump",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("16_krr5a")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_x72x4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_7vflr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_c6ycj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_fa4rj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_8bw68")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_q1fr3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_2kkxy")
+}],
+"loop": true,
+"name": &"Run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("25_cjdpa")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_2ysag")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_3n0rt")
+}],
+"loop": true,
+"name": &"Shoot",
+"speed": 10.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1hsv3"]
+size = Vector2(28, 60)
+
+[node name="Player" type="CharacterBody2D"]
+script = SubResource("GDScript_d2ifj")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_vrvv3")
+animation = &"Shoot"
+frame_progress = 0.771466
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(-9, -11, -1, -12, -1, -4, 3, -2, 5, 11, 7, 16, 6, 18, 5, 36, 9, 37, 9, 39, -10, 40, -8, 34, -8, 28, -8, 21, -15, 20, -9, -4, -7, -4)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
+[node name="health_label" type="Label" parent="."]
+offset_left = -500.0
+offset_top = -250.0
+offset_right = -460.0
+offset_bottom = -227.0
+
+[node name="lifes_label" type="Label" parent="."]
+offset_left = 414.0
+offset_top = -240.0
+offset_right = 454.0
+offset_bottom = -217.0
+
+[node name="Marker2D" type="Marker2D" parent="."]
+position = Vector2(32, -5)
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(-2, 10)
+shape = SubResource("RectangleShape2D_1hsv3")
+
+[node name="gunshot" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("28_he2l4")
+pitch_scale = 2.41
+
+[connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]

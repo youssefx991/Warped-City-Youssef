@@ -1,0 +1,81 @@
+[gd_scene load_steps=12 format=3 uid="uid://jqrbahc0gi7q"]
+
+[ext_resource type="Script" path="res://Enemy/enemy.gd" id="1_vktxx"]
+[ext_resource type="Texture2D" uid="uid://blxvhren5xrym" path="res://assets2/Sprites/egg turret/Idle/idle1.png" id="2_jniko"]
+[ext_resource type="Texture2D" uid="uid://cmfx25ujxroke" path="res://assets2/Sprites/egg turret/Idle/idle2.png" id="3_7il73"]
+[ext_resource type="Texture2D" uid="uid://bnc1o0fgpr8fe" path="res://assets2/Sprites/egg turret/Shoot/shoot1.png" id="4_jlqtb"]
+[ext_resource type="Texture2D" uid="uid://cy76gsbbo6v24" path="res://assets2/Sprites/egg turret/Shoot/shoot2.png" id="5_hvfgc"]
+[ext_resource type="Texture2D" uid="uid://bhge63hf0gf4" path="res://assets2/Sprites/egg turret/Shoot/shoot3.png" id="6_2oq32"]
+[ext_resource type="Texture2D" uid="uid://bqidiakkwiu13" path="res://assets2/Sprites/egg turret/Shoot/shoot4.png" id="7_it11o"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_3s23h"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_jniko")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_7il73")
+}],
+"loop": true,
+"name": &"Idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_jlqtb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_hvfgc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_2oq32")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_it11o")
+}],
+"loop": true,
+"name": &"Shoot",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_qu4us"]
+size = Vector2(27, 3)
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_tqvh3"]
+radius = 15.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1od7u"]
+radius = 172.003
+
+[node name="Enemy" type="CharacterBody2D"]
+script = ExtResource("1_vktxx")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_3s23h")
+animation = &"Shoot"
+frame_progress = 0.864919
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-0.5, 29)
+shape = SubResource("RectangleShape2D_qu4us")
+
+[node name="death_area" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="death_area"]
+position = Vector2(-2, -7)
+shape = SubResource("CapsuleShape2D_tqvh3")
+
+[node name="shoot_area" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="shoot_area"]
+visible = false
+position = Vector2(0, 2)
+shape = SubResource("CircleShape2D_1od7u")
+
+[node name="Marker2D" type="Marker2D" parent="."]
+position = Vector2(-25, 0)
+
+[connection signal="body_entered" from="death_area" to="." method="_on_death_area_body_entered"]
+[connection signal="body_entered" from="shoot_area" to="." method="_on_shoot_area_body_entered"]
+[connection signal="body_exited" from="shoot_area" to="." method="_on_shoot_area_body_exited"]

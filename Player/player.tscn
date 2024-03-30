@@ -51,18 +51,24 @@ var lifes = 3
 func _ready():
 	animated_sprite.play('Idle')
 	
-func _physics_process(delta):
+func _update_labels():
 	$health_label.text = \"HP: \" + str(health) 
 	$lifes_label.text = \"Lifes: \" + str(lifes)
-	# Add the gravity.
 	
-	# Handle climbing
+func _handle_climb():
 	if is_climbing == true:
 		velocity.y = 0
 		if Input.is_action_pressed(\"ui_up\"):
 			velocity.y = -SPEED
 		elif Input.is_action_pressed(\"ui_down\"):
 			velocity.y = SPEED 
+func _physics_process(delta):
+	
+	_update_labels()
+	# Add the gravity.
+	
+	# Handle climbing
+	_handle_climb()
 			
 	
 		
@@ -70,12 +76,9 @@ func _physics_process(delta):
 	# Get the input direction and handle the movement/deceleration.
 	var direction = Input.get_axis(\"ui_left\", \"ui_right\")
 	
-	
 	if not is_on_floor() and not is_climbing:
 		velocity.y += gravity * delta
-		
-		
-
+	
 	if Input.is_action_pressed('ui_down') and is_on_floor():
 		is_ducking = true
 		animated_sprite.play('Duck')
@@ -100,10 +103,6 @@ func _physics_process(delta):
 	if Input.is_action_just_pressed(\"ui_accept\") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
 		animated_sprite.play(\"Jump\")
-	
-	
-		
-	
 	
 	# sprite flip
 	if direction == -1:
@@ -292,8 +291,7 @@ script = SubResource("GDScript_d2ifj")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_vrvv3")
-animation = &"Shoot"
-frame_progress = 0.771466
+animation = &"Jump"
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
 polygon = PackedVector2Array(-9, -11, -1, -12, -1, -4, 3, -2, 5, 11, 7, 16, 6, 18, 5, 36, 9, 37, 9, 39, -10, 40, -8, 34, -8, 28, -8, 21, -15, 20, -9, -4, -7, -4)

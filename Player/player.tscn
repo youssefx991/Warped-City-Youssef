@@ -56,17 +56,15 @@ func _physics_process(delta):
 	$lifes_label.text = \"Lifes: \" + str(lifes)
 	# Add the gravity.
 	
+	# Handle climbing
 	if is_climbing == true:
 		velocity.y = 0
 		if Input.is_action_pressed(\"ui_up\"):
 			velocity.y = -SPEED
 		elif Input.is_action_pressed(\"ui_down\"):
 			velocity.y = SPEED 
-	if Input.is_action_just_pressed('ui_up') and is_climbing:
-		velocity.y -= 15
-		print(\"UPUP\")
-	elif Input.is_action_just_pressed('ui_down') and is_climbing:
-		velocity.y += 15
+			
+	
 		
 
 	# Get the input direction and handle the movement/deceleration.
